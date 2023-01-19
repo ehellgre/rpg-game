@@ -36,6 +36,24 @@ const weapons = [
     }
 ];
 
+const monsters = [
+    {
+        name: "slime",
+        level: 2,
+        health: 15
+    },
+    {
+        name: "fanged beast",
+        level: 8,
+        health: 60
+    },
+    {
+        name: dragon,
+        level: 20,
+        health: 300
+    }
+];
+
 const locations = [
     {
         name: "town square",
@@ -54,6 +72,12 @@ const locations = [
         "button text": ["Fight slime", "Fight fanged beast", "Go to town square"],
         "button functions": [fightSlime, fightBeast, goTown],
         text: "You enter the cave and see some monsters"
+    },
+    {
+        name: "fight",
+        "button text": ["Attack", "Dodge", "Run"],
+        "button functions": [attack, dodge, goTown],
+        text: "You are fighting a monster"
     }
 ];
 
@@ -84,9 +108,6 @@ function goCave() {
     update(locations[2])
 }
 
-function fightDragon() {
-
-}
 
 function buyHealth() {
     if (gold >= 10) {
@@ -100,26 +121,88 @@ function buyHealth() {
 }
 
 function buyWeapon() {
-    if (gold >= 30) {
-        gold -= 30;
-        currentWeapon++;
-        goldText.innerText = gold;
-        let newWeapon = weapons[currentWeapon].name;
-        text.innerText = "You now have a " + newWeapon + ".";
-        inventory.push(newWeapon);
-        text.innerText += " In your inventory you have: " + inventory;
+    if (currentWeapon < weapons.length - 1) {
+        if (gold >= 30) {
+            gold -= 30;
+            currentWeapon++;
+            goldText.innerText = gold;
+            let newWeapon = weapons[currentWeapon].name;
+            text.innerText = "You now have a " + newWeapon + ".";
+            inventory.push(newWeapon);
+            text.innerText += " In your inventory you have: " + inventory;
+        } else {
+            text.innerText = "Not enough gold";
+        }
     } else {
-        text.innerText = "Not enough gold";
+        text.innerText = "You already have the best weapon";
+        button2.innerText = "Sell weapon for 15 gold"; 
+        button2.onclick = sellWeapon;
     }
 }
 
-function fightSlime() {
+function sellWeapon() {
+    if (inventory.length > 1) {
+        gold += 15;
+        goldText.innerText = gold;
+        let currentWeapon = inventory.shift();
+        text.innerText = "You sold a " + currentWeapon + ".";
+        text.innerText += " In your inventory you have: " + inventory;
+    } else {
+        text.innerText = "Don't sell your only weapon";
+    }
+}
 
+
+function fightDragon() {
+    fighting = 0;
+    goFight();
+}
+
+function fightSlime() {
+    fighting = 1;
+    goFight();
 }
 
 function fightBeast() {
+    fighting = 2;
+    goFight();
+}
+
+function goFight() {
+    update(locations[3]);
+    monsterHealth = monsters[fighting].health;
+    monsterStats.style.display = "block";
+    monsterNameText.innerText = monsters[fighting].name;
+    monsterHealthText.innerText = monsterHealth;
+}
+
+function attack() {
+    text.innerText = "The " + monsters[fighting].name + " attacks.";
+    text.innerText += " You attack it with your " + weapons[currentWeapon].name + ".";
+    health -= monsters[fighting].level;
+    monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;
+    healthText.innerText = health;
+    monsterHealthText.innerText = monsterHealth;
+    if (health <= 0) {
+        lose();
+    } else if (monsterHealth <= 0) {
+        defeatMonster();
+    }
+}
+
+function dodge() {
 
 }
+
+function defeatMonster() {
+
+}
+
+function lose() {
+
+}
+
+
 
 
 
